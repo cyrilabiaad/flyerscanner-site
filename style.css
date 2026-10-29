@@ -1,0 +1,346 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f4f6f3;
+  --card: #ffffff;
+  --text: #1c2420;
+  --muted: #5d6a63;
+  --line: #dde3dd;
+  --accent: #17794a;
+  --good: #3f7d5c;  /* a good deal's discount: softer than a great deal's accent green */
+  --record-bg: #fbe8c8;
+  --record-fg: #7a4a00;
+  --member-bg: #e6e3f7;
+  --member-fg: #3d3585;
+  --close-bg: #e8ece8;
+  --close-fg: #44504a;
+  --error-bg: #fbe0dd;
+  --error-fg: #8c1d13;
+  --warning-bg: #fdf0c9;
+  --warning-fg: #6b4b00;
+  --amber: #e9a825;
+  --amber-fg: #2e2000;
+  --up: #a33a2a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121714;
+    --card: #1b221e;
+    --text: #e6ebe7;
+    --muted: #9aa8a0;
+    --line: #2d3731;
+    --accent: #52c488;
+    --good: #6aa883;
+    --record-bg: #43330f;
+    --record-fg: #f3cf84;
+    --member-bg: #2c2850;
+    --member-fg: #c3bdf5;
+    --close-bg: #2a332e;
+    --close-fg: #b8c4bc;
+    --error-bg: #4a1f1b;
+    --error-fg: #ffb4ac;
+    --warning-bg: #443512;
+    --warning-fg: #f6d98a;
+    --amber: #f0b429;
+    --amber-fg: #2a1d00;
+    --up: #ee9585;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+a { color: var(--accent); }
+.muted { color: var(--muted); font-size: 0.875rem; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+h1 { margin: 0; font-size: 1rem; line-height: 1.3; }
+h1 .week { color: var(--accent); }
+h2 { margin: 18px 0 8px; font-size: 1.15rem; }
+h3 { margin: 0 0 8px; font-size: 1rem; }
+.js .panel > h2 { display: none; }
+.js .panel { display: none; }
+.js[data-tab="deals"] #deals, .js[data-tab="watchlist"] #watchlist, .js[data-tab="produce"] #produce,
+.js[data-tab="info"] #info, .js[data-tab="search"] #search { display: block; }
+#search { display: none; }  /* without the script there is no search */
+
+/* sticky top area: header, tab bar, store filter */
+.top { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 760px; margin: 0 auto; padding: 6px 12px 0; }
+.page-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 8px; }
+.title { display: flex; flex: 1 1 auto; align-items: center; gap: 0 10px; min-height: 30px; }
+.hop { font-size: 0.75rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+/* from Wednesday the page shows the coming week: the running one is an obvious button */
+.hop.now { padding: 4px 10px; border-radius: 999px; background: var(--accent); color: var(--bg); }
+/* region: after the title row, or under it when the row is full; it needs the script */
+.region { display: none; max-width: 100%; height: 30px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--text); font: inherit; }
+.js .region { display: block; }
+
+/* search: a 🔍 at the end of the title row; on a phone it opens the box over that row */
+.search { display: none; flex: 0 1 auto; align-items: center; gap: 2px; min-width: 0; margin-left: auto; }
+.js .search { display: flex; }
+.search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;  /* 16px: a phone does not zoom in on focus */
+}
+.search input::-webkit-search-cancel-button { display: none; }  /* the × button clears it */
+.search input:focus-visible, .search button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.search button { flex: none; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+.search-x { font-size: 1.3rem; line-height: 1; }
+@media (max-width: 480px) {
+  .search input, .search-x { display: none; }
+  .searching .title > :not(.search) { display: none; }
+  .region { max-width: 11em; }  /* as wide as its longest name, it would take a row of its own */
+  .searching .region { display: none; }
+  .searching .search { flex: 1 1 auto; margin-left: 0; }
+  .searching .search input, .searching .search-x { display: block; }
+}
+@media (min-width: 481px) {
+  .search input { width: 240px; }
+  .search input:placeholder-shown + .search-x { visibility: hidden; }  /* nothing to clear yet */
+}
+.chips { display: flex; flex-wrap: wrap; gap: 0 6px; margin: 0; padding: 0; list-style: none; font-size: 0.7rem; }
+.chip.ok { color: var(--accent); }
+.chip.missing { color: var(--error-fg); font-weight: 700; }
+
+.errbar { margin: 4px 0 0; border-radius: 6px; background: var(--error-bg); font-size: 0.78rem; font-weight: 600; line-height: 1.3; }
+.errbar a {
+  display: block;
+  padding: 3px 8px;
+  overflow: hidden;
+  color: var(--error-fg);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabs { display: flex; margin: 2px -4px 0; }
+.tab {
+  position: relative;
+  flex: 1 1 auto;
+  padding: 6px 4px 5px;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.tab[aria-selected="true"] { border-bottom-color: var(--accent); color: var(--text); }
+.tab:focus-visible, .row > summary:focus-visible, .filter button:focus-visible, .show-all:focus-visible,
+.tail:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.tab .info-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.dot {
+  display: inline-block;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--amber);
+  color: var(--amber-fg);
+  font-size: 0.68rem;
+  line-height: 16px;
+  vertical-align: 1px;
+}
+
+.filter { display: flex; gap: 6px; padding: 3px 0 6px; overflow-x: auto; scrollbar-width: none; }
+.filter::-webkit-scrollbar { display: none; }
+.filter button {
+  flex: none;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); font-weight: 600; }
+/* Stores opens the picker: dashed, like a setting rather than a filter */
+.filter .stores-chip { border-style: dashed; color: var(--accent); font-weight: 600; }
+.filter .stores-chip[aria-expanded="true"] { border-style: solid; border-color: var(--accent); }
+/* a phone keeps All, the viewer's stores and Stores in view */
+@media (max-width: 480px) { .filter { gap: 4px; } .filter button { padding: 0 6px; } }
+
+/* the store picker: a small panel under the chips, inside the sticky header */
+.picker { margin: 0 0 8px; padding: 6px 10px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); font-size: 0.86rem; }
+.picker fieldset { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 0 8px; margin: 0 0 4px; padding: 0; border: 0; }
+.picker legend { padding: 4px 0 0; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.picker .muted { grid-column: 1 / -1; margin: 0; font-size: 0.78rem; }
+.picker label { display: flex; align-items: center; gap: 6px; min-height: 30px; white-space: nowrap; cursor: pointer; }
+.picker input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.picker-end { display: flex; gap: 6px; padding-top: 4px; border-top: 1px dashed var(--line); }
+.picker-end button { min-height: 30px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--text); font: inherit; cursor: pointer; }
+.picker-end .done { margin-left: auto; border-color: var(--accent); background: var(--accent); color: var(--bg); font-weight: 600; }
+.picker-end button:focus-visible, .picker input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+main { max-width: 760px; margin: 0 auto; padding: 4px 12px 32px; }
+.updated { margin: 6px 0 0; color: var(--muted); font-size: 0.75rem; }  /* the build time: a stale page shows it */
+.panel { scroll-margin-top: 130px; }
+
+/* rows */
+.rows { margin: 0 0 12px; padding: 0; border: 1px solid var(--line); border-bottom: 0; border-radius: 10px; background: var(--card); overflow: hidden; list-style: none; }
+.entry { border-bottom: 1px solid var(--line); }
+.row > summary { position: relative; display: block; padding: 7px 22px 7px 8px; list-style: none; cursor: pointer; }
+.row > summary::-webkit-details-marker { display: none; }
+.row > summary::after {
+  content: "";
+  position: absolute;
+  bottom: 14px;  /* beside the discount, at the end of the last line */
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+}
+.row[open] > summary::after { bottom: 11px; transform: rotate(-135deg); }
+.row[open] { background: var(--bg); }
+
+.line {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-areas: "photo l1 r1" "photo l2 l2";
+  align-items: center;
+  gap: 1px 8px;
+}
+.photo { grid-area: photo; width: 40px; height: 40px; }
+.photo img { display: block; width: 40px; height: 40px; object-fit: contain; border-radius: 5px; }
+.l1 { grid-area: l1; display: flex; align-items: center; gap: 5px; min-width: 0; }
+.name { min-width: 0; overflow: hidden; font-size: 0.95rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.r1 { grid-area: r1; justify-self: end; white-space: nowrap; }
+.unit { font-weight: 700; }
+/* a row's own 🥇 only with a store picked: with All, a product's row is its cheapest store anyway */
+html:not(.by-store) summary .medal { display: none; }
+/* line 2 wraps when it runs out of room; the discount stays at the right end */
+.l2 { grid-area: l2; display: flex; flex-wrap: wrap; align-items: center; gap: 0 5px; min-width: 0; overflow: hidden; font-size: 0.8rem; white-space: nowrap; }
+.store { flex: none; font-weight: 600; }
+.l2 .size, .l2 .sale, .l2 .usual { color: var(--muted); }
+.l2 .size::before, .l2 .sale::before, .l2 .usual::before { content: "· "; }
+.l2 .usual { display: none; }  /* the usual price on the row itself: the Watchlist's rows only */
+#watchlist .l2 .usual { display: inline; }
+.l2 .pct { margin-left: auto; }
+.pct { color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.pct.good { color: var(--good); }
+.pct.great { color: var(--accent); font-weight: 700; }
+.pct.up { color: var(--up); }  /* dearer than usual */
+
+.badge { flex: none; padding: 0 4px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em; line-height: 1.5; }
+.badge.record { background: var(--record-bg); color: var(--record-fg); }
+.badge.member { background: var(--member-bg); color: var(--member-fg); }
+.badge.close { background: var(--close-bg); color: var(--close-fg); }
+
+.more { padding: 0 10px 9px 56px; color: var(--muted); font-size: 0.84rem; }
+.more p { margin: 0 0 3px; }
+.flyer-name { overflow-wrap: anywhere; font-size: 0.78rem; }
+.others { margin-top: 6px; padding-top: 5px; border-top: 1px dashed var(--line); }
+.other { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
+.other .store { color: var(--text); }
+.other .unit, .other .pay { color: var(--text); font-weight: 600; }
+
+.wl-group { margin: 0 0 6px; }
+.buy { display: none; }  /* its rows are copied by the script */
+.js .buy { display: block; }
+.buy > .group-title { color: var(--accent); }
+.group-title {
+  margin: 12px 0 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.show-all {
+  display: block;
+  width: 100%;
+  margin: -4px 0 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+/* a watchlist group's "N more": its rows with no deal */
+.tail {
+  display: block;
+  width: 100%;
+  margin: -6px 0 12px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.empty { color: var(--muted); }
+
+/* search results: a group's title counts its rows; a flyer item on no list is a plain row */
+.hits .group-title { cursor: auto; }
+.item { padding: 7px 22px 7px 8px; border-bottom: 1px solid var(--line); font-size: 0.8rem; overflow-wrap: anywhere; }
+.item .fr { font-size: 0.9rem; font-weight: 600; }
+.item .en { color: var(--muted); }
+.item .meta { display: flex; flex-wrap: wrap; gap: 0 8px; color: var(--muted); }
+.item .store { color: var(--text); }
+.item a { margin-left: auto; }
+
+/* info tab */
+.banner { margin: 0 0 8px; padding: 9px 12px; border-radius: 8px; font-size: 0.92rem; }
+.banner.error { background: var(--error-bg); color: var(--error-fg); }
+.banner.warning { background: var(--warning-bg); color: var(--warning-fg); }
+#info h3 { margin-top: 16px; }
+.flyers { margin: 6px 0 0; padding: 0; list-style: none; }
+.flyers li { padding: 3px 0; }
+.flyers .ok { color: var(--accent); }
+.flyers .missing { color: var(--error-fg); font-weight: 700; }
+.flyers .dates { color: var(--muted); font-weight: 400; }
+p.other-week { margin: 14px 0 0; }
+.legend { margin: 0 0 4px; color: var(--muted); font-size: 0.875rem; }
+
+.diagnostics { margin-top: 20px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+.diagnostics summary { cursor: pointer; font-weight: 600; }
+.diagnostics ul { margin: 4px 0 8px; padding-left: 20px; font-size: 0.85rem; overflow-wrap: anywhere; }
+.diagnostics h3 { margin-top: 14px; }
+
+@media (min-width: 640px) {
+  .top-in { padding-top: 10px; }
+  h1 { font-size: 1.25rem; }
+  .chips { font-size: 0.82rem; gap: 0 12px; }
+  .tabs { margin: 4px 0 0; }
+  .filter { flex-wrap: wrap; overflow-x: visible; }  /* a mouse cannot scroll the row: every chip shows, Stores too */
+  .tab { flex: 0 0 auto; padding: 8px 18px 7px; font-size: 0.95rem; }
+  .tab .info-word { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+  .row > summary { padding: 9px 28px 9px 12px; }
+  .item { padding: 8px 28px 8px 12px; }
+  .row > summary::after { right: 10px; bottom: 16px; }
+  .row[open] > summary::after { bottom: 13px; }
+  .name { font-size: 1rem; }
+}
